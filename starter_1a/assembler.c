@@ -11,12 +11,24 @@
 
 //Every LC2K file will contain less than 1000 lines of assembly.
 #define MAXLINELENGTH 1000
+#define MAXLABELLENGTH 7
 
 int readAndParse(FILE *, char *, char *, char *, char *, char *);
 static void checkForBlankLinesInCode(FILE *inFilePtr);
 static inline int isNumber(char *);
 static inline void printHexToFile(FILE *, int);
 static int endsWith(char *, char *);
+
+typedef struct {
+
+    char label[MAXLABELLENGTH];
+    int address;
+
+} Label;
+
+Label labels[MAXLINELENGTH];
+int countLables = 0;
+
 
 int
 main(int argc, char **argv)
