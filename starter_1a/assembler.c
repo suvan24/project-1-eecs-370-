@@ -27,7 +27,7 @@ typedef struct {
 } Label;
 
 Label labels[MAXLINELENGTH];
-int countLables = 0;
+int countLabels = 0;
 
 
 int
@@ -83,6 +83,23 @@ main(int argc, char **argv)
     /* this is how to rewind the file ptr so that you start reading from the
         beginning of the file */
     rewind(inFilePtr);
+
+    int address = 0; // start address at Line 0 Memory 0
+    while (readAndParse(inFilePtr, opcode, label, arg0, arg1, arg2)) {
+
+        if (label[0] == '\0') {
+            for (int i = 0; i < countLabels; i++) {
+                if (strcmp(labels[i].label, label) != 0) {
+                    printf("error: duplicate label %s\n", label);
+                    exit(1);
+                }
+            }
+            strcpy(labels[countLabels].label, label);
+            labels[countLabels].address = address;
+            countLabels++;
+        }
+        address++;
+    }
 
     /* after doing a readAndParse, you may want to do the following to test the
         opcode */
