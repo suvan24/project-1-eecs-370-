@@ -84,22 +84,93 @@ main(int argc, char **argv)
         beginning of the file */
     rewind(inFilePtr);
 
+    // first pass
     int address = 0; // start address at Line 0 Memory 0
     while (readAndParse(inFilePtr, opcode, label, arg0, arg1, arg2)) {
 
-        if (label[0] == '\0') {
+        // check if line is not empty
+        if (label[0] != '\0') {
+
+            // checking duplicates
             for (int i = 0; i < countLabels; i++) {
                 if (strcmp(labels[i].label, label) != 0) {
                     printf("error: duplicate label %s\n", label);
                     exit(1);
                 }
             }
+
+            // no duplicates then add it to the structure
             strcpy(labels[countLabels].label, label);
             labels[countLabels].address = address;
             countLabels++;
         }
         address++;
     }
+
+    // second pass
+    address = 0;
+    while (readAndParse(inFilePtr, label, opcode, arg0, arg1, arg2)) {
+        int mC = 0;
+
+        // r type
+        if ((strcmp(opcode, "add") == 0) || (strcmp(opcode, "nor") == 0)) {
+
+            int opcodenum;
+
+            // check if number for errors
+            if (!isNumber(arg0) || !isNumber(arg1) || !isNumber(arg2)) {
+                exit(1);
+            }
+
+            // convert to integer
+            int regA = atoi(arg0);
+            int regB = atoi(arg1);
+            int destination = atoi(arg2);
+
+            // check if between registers between [0, 7] inclusive
+            if (regA < 0 || regA > 7 || regB < 0 || regB > 7 || 
+                destination < 0 || destination > 7) {
+                    exit(1);
+                }
+            
+            if (strcmp(opcode, "add") != 0) {
+                opcodenum = 1;
+            } else {
+                opcodenum = 0;
+            }
+
+
+            
+            
+        } 
+        // i type
+        else if ((strcmp(opcode, "lw") == 0) || (strcmp(opcode, "sw") == 0) || (strcmp(opcode, "beq") == 0)) {
+
+        } 
+        // j type
+        else if (strcmp(opcode, "jalr") == 0) {
+
+        }
+
+        //o type 
+        else if ((strcmp(opcode, "noop") == 0) || (strcmp(opcode, "halt") == 0)){
+
+        } 
+
+        // fill type
+        else if (strcmp(opcode, ".fill") == 0) {
+
+        }
+        else {
+            printf("error: unrecognized opcode %s\n", opcode);
+            exit(1);
+        }
+
+        printHexToFile(outFilePtr, mC);
+        address++;
+
+    }
+
 
     /* after doing a readAndParse, you may want to do the following to test the
         opcode */
