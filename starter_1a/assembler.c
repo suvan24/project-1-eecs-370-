@@ -133,18 +133,78 @@ main(int argc, char **argv)
                     exit(1);
                 }
             
+            // set opcode number
             if (strcmp(opcode, "add") != 0) {
                 opcodenum = 1;
             } else {
                 opcodenum = 0;
             }
 
-
-            
+            // convert to machine code
+            mC = (opcodenum << 22) + (regA << 19) + (regB << 16) + destination;
             
         } 
         // i type
         else if ((strcmp(opcode, "lw") == 0) || (strcmp(opcode, "sw") == 0) || (strcmp(opcode, "beq") == 0)) {
+
+            int opcodenum;
+
+            // check if numbers
+            if (!isNumber(arg0) || !isNumber(arg1)) {
+                exit(1);
+            }
+
+            // convert to integers
+            int regA = atoi(arg0);
+            int regB = atoi(arg1);
+            int offset;
+            bool check = false;
+
+            // check if in range [0,7] inclusive
+            if (regA < 0 || regA > 7 || regB < 0 || regB > 7) {
+                exit(1);
+            }
+
+            // arg2 can be label or number
+            if (isNumber(arg2)) {
+                offset = atoi(arg2);
+                check = true;
+            } else {
+                for (int i = 0; i < countLabels; i++) {
+                    if (strcmp(labels[i].label, arg2) == 0) {
+                        offset = labels[i].address;
+                        check = true;
+                        break;
+                    }
+                }
+            }
+
+            // arg2 must be label or number
+            if (check == false) {
+                exit(1);
+            }
+
+            // determine what the opcode is
+            if (strcmp(opcode, "lw") == 0) {
+                opcodenum = 2;
+            } else if (strcmp(opcode, "sw") == 0) {
+                opcodenum = 3;
+            } else {
+                opcodenum = 4;
+            }
+
+            // offset if it is beq
+            if (strcmp(opcode, "beq") == 0) {
+                offset = offset - (address + 1);
+            }
+
+            // check if the offset is within the range
+            if (offset < -32768 || offset > 32767) {
+                exit(1);
+            }
+
+            // conver into machine code
+            mC = (opcodenum << 22) + (regA << 19) + (regB << 16) + (offset & 0xFFFF);
 
         } 
         // j type
