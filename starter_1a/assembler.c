@@ -86,14 +86,14 @@ main(int argc, char **argv)
 
     // first pass
     int address = 0; // start address at Line 0 Memory 0
-    while (readAndParse(inFilePtr, opcode, label, arg0, arg1, arg2)) {
+    while (readAndParse(inFilePtr, label, opcode, arg0, arg1, arg2)) {
 
         // check if line is not empty
         if (label[0] != '\0') {
 
             // checking duplicates
             for (int i = 0; i < countLabels; i++) {
-                if (strcmp(labels[i].label, label) != 0) {
+                if (strcmp(labels[i].label, label) == 0) {
                     printf("error: duplicate label %s\n", label);
                     exit(1);
                 }
@@ -244,7 +244,28 @@ main(int argc, char **argv)
 
         // fill type
         else if (strcmp(opcode, ".fill") == 0) {
+            int val;
+            bool found = false;
 
+            // can be label or a number
+            if (isNumber(arg0)) {
+                val = atoi(arg0);
+                found = true;
+            } else {
+                for (int i = 0; i < countLabels; i++) {
+                    if (strcmp(labels[i].label, arg0) == 0) {
+                        val = labels[i].address;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (found == false) {
+                exit(1);
+            }
+            
+            mC = val;
         }
         else {
             printf("error: unrecognized opcode %s\n", opcode);
