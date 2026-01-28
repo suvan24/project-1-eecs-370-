@@ -209,12 +209,37 @@ main(int argc, char **argv)
         } 
         // j type
         else if (strcmp(opcode, "jalr") == 0) {
+            int opcodenum = 5;
+
+            // check if numbers
+            if (!isNumber(arg0) || !isNumber(arg1)) {
+                exit(1);
+            }
+
+            // convert to integers
+            int regA = atoi(arg0);
+            int regB = atoi(arg1);
+
+            // check if in range [0,7] inclusive
+            if (regA < 0 || regA > 7 || regB < 0 || regB > 7) {
+                exit(1);
+            }
+            // convert into machine code
+            mC = (opcodenum << 22) + (regA << 19) + (regB << 16);
 
         }
 
         //o type 
         else if ((strcmp(opcode, "noop") == 0) || (strcmp(opcode, "halt") == 0)){
 
+            int opcodenum;
+            if (strcmp(opcode, "halt") == 0) {
+                opcodenum = 6;
+                mC = opcodenum << 22;
+            } else {
+                opcodenum = 7;
+                mC = opcodenum << 22;
+            }
         } 
 
         // fill type
