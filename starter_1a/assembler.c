@@ -28,8 +28,6 @@ typedef struct {
 
 Label labels[MAXLINELENGTH];
 int countLabels = 0;
-
-
 int
 main(int argc, char **argv)
 {
@@ -107,6 +105,7 @@ main(int argc, char **argv)
         address++;
     }
 
+    rewind(inFilePtr);
     // second pass
     address = 0;
     while (readAndParse(inFilePtr, label, opcode, arg0, arg1, arg2)) {
@@ -159,6 +158,7 @@ main(int argc, char **argv)
             int regB = atoi(arg1);
             int offset;
             bool check = false;
+            bool isLabel = false;
 
             // check if in range [0,7] inclusive
             if (regA < 0 || regA > 7 || regB < 0 || regB > 7) {
@@ -173,6 +173,7 @@ main(int argc, char **argv)
                 for (int i = 0; i < countLabels; i++) {
                     if (strcmp(labels[i].label, arg2) == 0) {
                         offset = labels[i].address;
+                        isLabel = true;
                         check = true;
                         break;
                     }
@@ -194,8 +195,8 @@ main(int argc, char **argv)
             }
 
             // offset if it is beq
-            if (strcmp(opcode, "beq") == 0) {
-                offset = offset - (address + 1);
+            if (strcmp(opcode, "beq") == 0 && isLabel) {
+                offset = offset - address - 1;
             }
 
             // check if the offset is within the range
@@ -277,22 +278,6 @@ main(int argc, char **argv)
 
     }
 
-
-    /* after doing a readAndParse, you may want to do the following to test the
-        opcode */
-    if (!strcmp(opcode, "add")) {
-        /* do whatever you need to do for opcode "add" */
-    }
-
-    /* here is an example of using isNumber. "5" is a number, so this will
-       return true */
-    if(isNumber("5")) {
-        printf("It's a number\n");
-    }
-
-    /* here is an example of using printHexToFile. This will print a
-       machine code word / number in the proper hex format to the output file */
-    printHexToFile(outFilePtr, 123);
 
     return(0);
 }
