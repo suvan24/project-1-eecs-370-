@@ -97,7 +97,10 @@ main(int argc, char **argv)
             int destReg = instruction & 0b111; // 2-0 for destReg
             state.reg[destReg] = state.reg[regA] + state.reg[regB]; // add regA + regB
             state.pc++;
-
+        } else if (opcode == 1) { // nor
+            int destReg = instruction & 0b111; // 2-0 for destReg
+            state.reg[destReg] = ~(state.reg[regA] | state.reg[regB]); // nor (~(regA | regB))
+            state.pc++;
         }
     }
 
