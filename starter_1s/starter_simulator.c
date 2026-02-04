@@ -82,37 +82,54 @@ main(int argc, char **argv)
     }
     state.numInstructionsExecuted = 0;
 
-    int halted = 0; // keep going until halted
+    int stop = 0; // keep going until halted
 
-    while (!halted) {
+    while (!stop) {
 
         printState(&state); // printing state before hand
 
         int opcode = (state.mem[state.pc] >> 22) & 0b111; // 24-22 bits
         int regA = (state.mem[state.pc] >> 19) & 0b111; // 21-19 bits
         int regB = (state.mem[state.pc] >> 16) & 0b111; // 18-16 bits
-        int offset = convertNum(state.mem[state.pc] & 0b1111111111111111); // if offset it will be 15-0 bits
+        int offset = convertNum(state.mem[state.pc] & 0b1111111111111111); // 15-0 bits for I type
+        int destReg = state.mem[state.pc] & 0b111; // 2-0 bits for R type
 
         if (opcode == 0) { // add
-            int destReg = state.mem[state.pc] & 0b111; // 2-0 bits
             state.reg[destReg] = state.reg[regA] + state.reg[regB]; // add regA + regB
             state.pc++;
         } else if (opcode == 1) { // nor
-            int destReg = state.mem[state.pc] & 0b111; // 2-0 bits
             state.reg[destReg] = ~(state.reg[regA] | state.reg[regB]); // nor (~(regA | regB))
             state.pc++;
         } else if (opcode == 2) { // load word
-            state.reg[regB] = state.mem[state.reg[regA] + offset];
+            state.reg[regB] = state.mem[state.reg[regA] + offset]; // loading word
             state.pc++;
         } else if (opcode == 3) { // store word
-            state.reg[regB] = state.mem[state.reg[regA] + offset];
+            state.mem[state.reg[regA] + offset] = state.reg[regB]; // storing word in mem
             state.pc++;
         } else if (opcode == 4) { // beq
-
+            if (state.reg[regA] == state.reg[regB]) {
+                state.pc = state.pc + 1 + offset; // jumping
+            } else {
+                state.pc++;
+            }
+        } else if (opcode == 5) { // jalr
+            state.reg[regB] = state.pc + 1; // save address + 1
+            state.pc = state.reg[regA]; // jump to that 
+        } else if (opcode == 6) { // halt
+            stop = 1;
+            state.pc++;
+        } else if (opcode == 7) { // noop
+            state.pc++;
         }
+        else {
+            printf("error: unrecognized opcode");
+            exit(1);
+        }
+
+        state.numInstructionsExecuted++;
     }
 
-
+    printState(&state);
     //Your code ends here! 
 
     fclose(filePtr);
