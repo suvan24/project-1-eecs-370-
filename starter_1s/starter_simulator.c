@@ -88,19 +88,27 @@ main(int argc, char **argv)
 
         printState(&state); // printing state before hand
 
-        int instruction = state.mem[state.pc]; // instruction 
-        int opcode = (instruction >> 22) & 0b111; // 24-22 bits
-        int regA = (instruction >> 19) & 0b111; // 21-19 bits
-        int regB = (instruction >> 16) & 0b111; // 18-16 bits
+        int opcode = (state.mem[state.pc] >> 22) & 0b111; // 24-22 bits
+        int regA = (state.mem[state.pc] >> 19) & 0b111; // 21-19 bits
+        int regB = (state.mem[state.pc] >> 16) & 0b111; // 18-16 bits
+        int offset = convertNum(state.mem[state.pc] & 0b1111111111111111); // if offset it will be 15-0 bits
 
         if (opcode == 0) { // add
-            int destReg = instruction & 0b111; // 2-0 for destReg
+            int destReg = state.mem[state.pc] & 0b111; // 2-0 bits
             state.reg[destReg] = state.reg[regA] + state.reg[regB]; // add regA + regB
             state.pc++;
         } else if (opcode == 1) { // nor
-            int destReg = instruction & 0b111; // 2-0 for destReg
+            int destReg = state.mem[state.pc] & 0b111; // 2-0 bits
             state.reg[destReg] = ~(state.reg[regA] | state.reg[regB]); // nor (~(regA | regB))
             state.pc++;
+        } else if (opcode == 2) { // load word
+            state.reg[regB] = state.mem[state.reg[regA] + offset];
+            state.pc++;
+        } else if (opcode == 3) { // store word
+            state.reg[regB] = state.mem[state.reg[regA] + offset];
+            state.pc++;
+        } else if (opcode == 4) { // beq
+
         }
     }
 
