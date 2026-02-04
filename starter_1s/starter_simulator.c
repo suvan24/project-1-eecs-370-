@@ -75,10 +75,32 @@ main(int argc, char **argv)
             printf("mem[ %d ] 0x%08X\n", state.numMemory, state.mem[state.numMemory]);
     }
 
+    // resetting everything to 0
     state.pc = 0;
     for (int i = 0; i < NUMREGS; i++) {
         state.reg[i] = 0;
     }
+    state.numInstructionsExecuted = 0;
+
+    int halted = 0; // keep going until halted
+
+    while (!halted) {
+
+        printState(&state); // printing state before hand
+
+        int instruction = state.mem[state.pc]; // instruction 
+        int opcode = (instruction >> 22) & 0b111; // 24-22 bits
+        int regA = (instruction >> 19) & 0b111; // 21-19 bits
+        int regB = (instruction >> 16) & 0b111; // 18-16 bits
+
+        if (opcode == 0) { // add
+            int destReg = instruction & 0b111; // 2-0 for destReg
+            state.reg[destReg] = state.reg[regA] + state.reg[regB]; // add regA + regB
+            state.pc++;
+
+        }
+    }
+
 
     //Your code ends here! 
 
