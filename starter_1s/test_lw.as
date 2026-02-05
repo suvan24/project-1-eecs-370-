@@ -1,3 +1,3 @@
-lw 0 1 five
-halt
+	lw	0	1	five
+	halt
 five	.fill	5

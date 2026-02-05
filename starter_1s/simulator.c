@@ -129,8 +129,12 @@ main(int argc, char **argv)
         state.numInstructionsExecuted++;
     }
 
+    printStats(&state);
     printState(&state);
     //Your code ends here! 
+
+    // halt, noop, add, nor, lw, sw, beq, jalr - 8 tests
+    // beq with negative offset, lw/sw with negative offset, jalr rega == regb
 
     fclose(filePtr);
     return(0);
